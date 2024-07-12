@@ -151,7 +151,7 @@ create table spy_monthly_augenspikes as
 	ORDER BY dt;
 
 -- monthly factor calcs
-create table spy_monthly_factorcalcs as
+create or replace table spy_monthly_factorcalcs as
 	with spy_monthly_cte as (
 		select
 			row_number() over(ORDER BY dt) as bar_num,
@@ -165,7 +165,7 @@ create table spy_monthly_factorcalcs as
 			round((close + open) / 2, 2) as oc2,
 			lag(close)over(order by dt) as prev_close, lag(low)over(order by dt) as prev_low,
 			high - low as rng, lag(rng)over(order by dt) as prev_rng, 
-			round((open - low) / prev_rng, 2) as open_prev_rng,
+			round((open - prev_low) / prev_rng, 2) as open_prev_rng,
 			round((close - low) / rng, 3) as close_rng,
 			round(abs(open - close)/rng, 2) as body2rng,
 			case when body2rng <= 0.15 and close_rng > 0.66 then 'hammer'
