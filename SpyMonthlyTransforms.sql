@@ -191,6 +191,15 @@ create or replace table spy_monthly_factorcalcs as
 	order by dt;
 
 /*
+WITH spy_dividend_cte AS (
+	SELECT 
+		time_bucket(to_months(1), dt) as dt,
+		max(dividend) AS dividend,
+	FROM spy_1d_dividends
+	where dt >= '1993-02-01'
+	group by time_bucket(to_months(1), dt)
+	order by time_bucket(to_months(1), dt)
+)
 SELECT m.*, 
 	hl.* EXCLUDE (dt),
 	cd.* EXCLUDE (dt),
@@ -198,6 +207,7 @@ SELECT m.*,
 	ga.* EXCLUDE (dt),
 	sp.* EXCLUDE (dt),
 	fc.* EXCLUDE (dt),
+	div.* EXCLUDE(dt),
 FROM spy_monthly m
 	LEFT JOIN spy_monthly_highlow hl ON m.dt = hl.dt
 	LEFT JOIN spy_monthly_consec_dir cd ON m.dt = cd.dt
@@ -205,5 +215,6 @@ FROM spy_monthly m
 	LEFT JOIN spy_monthly_geomavg5 ga ON m.dt = ga.dt
 	LEFT JOIN spy_monthly_augenspikes sp ON m.dt = sp.dt
 	LEFT JOIN spy_monthly_factorcalcs fc ON m.dt = fc.dt
+	LEFT JOIN spy_dividend_cte div ON m.dt = div.dt
 ORDER BY m.dt;
 */
